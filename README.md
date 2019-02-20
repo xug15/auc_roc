@@ -102,6 +102,7 @@ plt.title('Receiver operating characteristic example')
 plt.legend(loc="lower right")
 plt.show()
 ```
+![d1](image/d1.png)
 **Plot ROC curves for the multiclass problem**
 
 ```python
@@ -150,5 +151,6 @@ plt.legend(loc="lower right")
 plt.show()
 
 ```
+![](image/d2.png)
 
 
