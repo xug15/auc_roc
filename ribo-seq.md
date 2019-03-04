@@ -26,6 +26,11 @@ print "$len";
 }
 ```
 
+## Quality of raw reads.
+```sh
+fastqc -t 4 Col-0_FKDL171663936-1A_1.clean.fq.gz.cutadapt.fastq.clean.fq
+```
+
 
 
 
