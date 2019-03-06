@@ -79,8 +79,11 @@ STAR --runThreadN 4 --runMode alignReads --genomeDir /home/xugang/index/tair.sta
 ```sh
 out=/home/xugang/data_guoruixin-20190302/Col-0_FKDL171663936-1A/
 bam=/home/xugang/data_guoruixin-20190302/Col-0_FKDL171663936-1A/d-bam/mapAligned.sortedByCoord.out.bam
+bed=/home/xugang/index/tair_ribowave/start_codon.bed
+script=/home/xugang/RiboWave_v1.0/script/
+name=Col
 
-/home/xugang/RiboWave_v1.0/script/P-site_determination.sh -i $bam -S /home/xugang/index/tair_ribowave/start_codon.bed -o $out -s /home/xugang/RiboWave_v1.0/script/ -n Col
+/home/xugang/RiboWave_v1.0/script/P-site_determination.sh -i $bam -S $bed -o $out -s $script -n $name
 ```
 
 ## Generate P-site file
@@ -88,7 +91,7 @@ bam=/home/xugang/data_guoruixin-20190302/Col-0_FKDL171663936-1A/d-bam/mapAligned
 ```python
 import sys
 data=open(sys.argv[1])
-out=open('psite1nt.txt','w')
+out=open('P-site/psite1nt.txt','w')
 for d in data:
     d=d.rstrip("\n")
     num=d.split("\t")
@@ -112,9 +115,62 @@ script=/home/xugang/RiboWave_v1.0/script/
 
 [[ -d f-P-site-track ]] || mkdir f-P-site-track
 
-echo /home/xugang/RiboWave_v1.0/script/create_track_Ribo.sh -i $bam -G $gtf -g $genome_size -P $psite_position -o $out -s $script -n $name
-
+/home/xugang/RiboWave_v1.0/script/create_track_Ribo.sh -i $bam -G $gtf -g $genome_size -P $psite_position -o $out -s $script -n $name
 
 ```
+
+## Denoise the P-site track
+### a8-Denoise-P-site-track.sh
+```sh
+psite=f-P-site-track/bedgraph/Col/final.psite
+ORFs=/home/xugang/index/tair_ribowave/final.ORFs
+script=/home/xugang/RiboWave_v1.0/script/
+
+mkdir -p g-Ribowave;
+/home/xugang/RiboWave_v1.0/script/Ribowave  -a $psite -b $ORFs -o g-Ribowave -n Col -s $script -p 8
+```
+
+## Identifying translated ORF
+### a9-Identifying-translated-ORF.sh
+```sh
+psite=f-P-site-track/bedgraph/Col/final.psite
+ORFs=/home/xugang/index/tair_ribowave/final.ORFs
+script=/home/xugang/RiboWave_v1.0/script/
+name=Col
+
+mkdir -p h-Identifying-translated-ORF;
+/home/xugang/RiboWave_v1.0/script/Ribowave -P -a $psite -b $ORFs -o h-Identifying-translated-ORF -n $name -s $script -p 4
+
+```
+
+## Estimating abundance
+### a10-Estimating-abundance.sh
+```sh
+psite=f-P-site-track/bedgraph/Col/final.psite
+ORFs=/home/xugang/index/tair_ribowave/final.ORFs
+script=/home/xugang/RiboWave_v1.0/script/
+name=Col
+
+mkdir -p i-Estimating-abundance
+/home/xugang/RiboWave_v1.0/script/Ribowave -D -a $psite -b $ORFs -o i-Estimating-abundance -n $name -s $script -p 4;
+```
+
+## Estimating TE
+**IMPORTANT : when estimating TE, user should input the sequenced depth of Ribo-seq and the FPKM value from paired RNA-seq**
+### a11-Estimating-TE.sh
+```sh
+psite=f-P-site-track/bedgraph/Col/final.psite
+ORFs=/home/xugang/index/tair_ribowave/final.ORFs
+script=/home/xugang/RiboWave_v1.0/script/
+name=Col
+
+
+mkdir -p j-Estimating-TE;
+/home/xugang/RiboWave_v1.0/script/Ribowave -T 9012445  GSE52799/mRNA/SRR1039761.RPKM -a $psite -b $ORFs -o j-Estimating-TE -n $name -s $script -p 4
+
+```
+
+
+
 
 
