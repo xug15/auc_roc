@@ -198,7 +198,7 @@ awk -F '\t' '{if($1~/>/){if(NR>1){print foo;}foo=$0"\t";}else{foo=foo""$1;}}
 END{print foo}'     $annotation_full/exons.fa                      >       $annotation_full/foo;
 awk -F '>' '{print $2}' $annotation_full/foo      >       $annotation_full/foo2;
 awk -F ',' '{print $1"\t"$1"_"($2+2)%3"_"$2"_"$3}' $annotation_full/exons.ORFs    >       $annotation_full/exons.ORFs.foo;
-perl $script_dir_full/get_matrix_from_ID.bk.pl       $annotation_full/foo2     $annotation_full/exons.ORFs.foo   $annotation_full/foo3;
+perl $script_dir_full/get_matrix_from_ID.pl       $annotation_full/foo2     $annotation_full/exons.ORFs.foo   $annotation_full/foo3;
 paste $annotation_full/exons.ORFs.foo     $annotation_full/foo3     |awk -F '\t' '$1==$3{print $2"\t"$NF}'  >       $annotation_full/exons.ORFs.fa.2;
 awk -F '\t' 'split($1,a,"_"){print $1"\t"substr($2,a[3],3)}'    $annotation_full/exons.ORFs.fa.2  >       $annotation_full/exons.ORFs.NTG;
 
@@ -210,13 +210,13 @@ perl $script_dir_full/is_A_not_in_B.pl    $annotation_full/exons.ORFs.2     $ann
 awk -F '\t' '{print $1"\tunanno\t"$2}'  $annotation_full/unanno.foo       >       $annotation_full/unanno.foo2;
 
 #1. anno
-perl $script_dir_full/is_A_in_B2.pl        $annotation_full/exons.ORFs.2     $annotation_full/transcript.annotated.ORF.2       $annotation_full/anno.foo;
+perl $script_dir_full/is_A_in_B.pl        $annotation_full/exons.ORFs.2     $annotation_full/transcript.annotated.ORF.2       $annotation_full/anno.foo;
 awk -F '\t' '{print $1"\tanno\t"$2}'    $annotation_full/anno.foo         >       $annotation_full/anno.foo2;
 
 #2. sharestop
 awk -F '\t' 'split($1,a,"_"){print a[1]"_"a[4]}'        $annotation_full/transcript.annotated.ORF.2       >       $annotation_full/anno_stop.foo;
 awk -F '\t' 'split($1,a,"_"){print a[1]"_"a[4]"\t"$0}'  $annotation_full/unanno.foo2                      >       $annotation_full/unanno.foo3;
-perl $script_dir_full/is_A_in_B2.pl        $annotation_full/unanno.foo3      $annotation_full/anno_stop.foo    $annotation_full/unanno.foo4;
+perl $script_dir_full/is_A_in_B.pl        $annotation_full/unanno.foo3      $annotation_full/anno_stop.foo    $annotation_full/unanno.foo4;
 awk -F '\t' '{print $2"\tsharestop\t"$4}'       $annotation_full/unanno.foo4      >       $annotation_full/sharestop.foo2;
 perl $script_dir_full/is_A_not_in_B.pl    $annotation_full/unanno.foo3      $annotation_full/anno_stop.foo    $annotation_full/unanno.foo5;
 cut -f 2-       $annotation_full/unanno.foo5      >       $annotation_full/unanno.foo2;
@@ -225,8 +225,8 @@ cat $annotation_full/anno.foo2    $annotation_full/sharestop.foo2   $annotation_
 #3. transcript type
 awk -F' \t' 'split($1,a,"_"){print a[1]"\t"$0}' $annotation_full/final.annot.1    >       $annotation_full/final.annot.foo;
 awk -F '\t' '{print $2"\t"$0}'  $annotation_full/annotation.list 		  >       $annotation_full/foo;
-perl $script_dir_full/is_A_in_B2.pl	$annotation_full/final.annot.foo	$annotation_full/foo	$annotation_full/final.annot.foo2;
-perl $script_dir_full/get_matrix_from_ID2.pl       $annotation_full/foo      $annotation_full/final.annot.foo2  $annotation_full/foo2;
+perl $script_dir_full/is_A_in_B.pl	$annotation_full/final.annot.foo	$annotation_full/foo	$annotation_full/final.annot.foo2;
+perl $script_dir_full/get_matrix_from_ID.pl       $annotation_full/foo      $annotation_full/final.annot.foo2  $annotation_full/foo2;
 paste   $annotation_full/final.annot.foo2  $annotation_full/foo2     |awk -F '\t' '$1==$5{print $2"\t"$3"\t"$4"\t"$(NF-2)"\t"$NF}'   >       $annotation_full/final.annot.2;
 awk -F '\t' 'split($1,a,"_"){if($4=="protein_coding" && $5=="protein_coding"){print $1"\tcoding\t"$2"\t"$3"\t"a[3]"\t"a[4]}else{print $1"\tNC\t"$2"\t"$3"\t"a[3]"\t"a[4]}}'      $annotation_full/final.annot.2    >       $annotation_full/final.ORFs.annot3;
 
